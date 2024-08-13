@@ -2,9 +2,9 @@
 
 namespace Homeful\Paymate\Tests;
 
+use Homeful\Paymate\PaymateServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Homeful\Paymate\PaymateServiceProvider;
 
 class TestCase extends Orchestra
 {

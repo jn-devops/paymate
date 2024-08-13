@@ -2,9 +2,9 @@
 
 namespace Homeful\Paymate;
 
+use Homeful\Paymate\Commands\PaymateCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Homeful\Paymate\Commands\PaymateCommand;
 
 class PaymateServiceProvider extends PackageServiceProvider
 {
