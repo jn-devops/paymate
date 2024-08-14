@@ -1,0 +1,13 @@
+<xml>
+    <body>RaemulanLandsInc</body>
+    <device_info>100</device_info>
+    <mch_create_ip>127.0.0.1</mch_create_ip>
+    <mch_id>{{merchantID}}</mch_id>
+    <nonce_str>{{nonce_str}}</nonce_str>
+    <notify_url>{{notify_url}}</notify_url>
+    <out_trade_no>{{transactionID}}</out_trade_no>
+    <service>pay.instapay.native.v2</service>
+    <sign_type>SHA256</sign_type>
+    <total_fee>{{amount}}</total_fee>
+    <sign>{{sign}}</sign>
+</xml>
