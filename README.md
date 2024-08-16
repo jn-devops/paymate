@@ -32,6 +32,15 @@ php artisan vendor:publish --tag="paymate-views"
 ## Usage
 
 ```php
+```ENV Setup```
+    'PAYMATE_MERCHANT_ID'   = ""
+    'PAYMATE_BASE_URL'      = ""
+    'PAYMATE_MERPUBKEY'     = ""
+    'PAYMATE_JWSKEY'        = ""
+    'PAYMATE_JWEKEY'        = ""
+    'PAYMATE_CALLBACKURL'   = ""
+    'PAYMATE_NOTIFYURL'     = ""
+```ENV Setup```
 
 $paymate = new Homeful\Paymate();
 ```Generate link for AUbpaymate```
