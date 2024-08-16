@@ -16,7 +16,6 @@ class Paymate
         $nonce_str = $request->input('referenceCode');
         $reqURL = 'body=RaemulanLandsInc&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service=pay.instapay.native.v2&sign_type=SHA256&total_fee='.$amount.'&key=a0b1b6529b9a90efb5a80eba6ba0a7c6';
         $sign = hash('sha256', $reqURL);
-
         // Load XML template
         $xmlContent = simplexml_load_file(__DIR__.'\..\resources\xml\qrph_xml_template.xml');
         $xmlTemplate = $xmlContent->asXML();
@@ -43,6 +42,7 @@ class Paymate
     public function payment_wallet(Request $request)
     {
         $config = config('paymate');
+        $service = '';
         if ($request->input('wallet') == 'gcash') {
             $service = 'pay.gcash.webpay';
         } elseif ($request->input('wallet') == 'grabpay') {
