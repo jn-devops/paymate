@@ -15,23 +15,11 @@ You can install the package via composer:
 composer require jn-devops/paymate
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="paymate-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="paymate-config"
-```
-
 This is the contents of the published config file:
 
 ```php
 return [
+    
 ];
 ```
 
@@ -44,8 +32,41 @@ php artisan vendor:publish --tag="paymate-views"
 ## Usage
 
 ```php
+
 $paymate = new Homeful\Paymate();
-echo $paymate->echoPhrase('Hello, Homeful!');
+```Generate link for AUbpaymate```
+$jsonInput =[{   
+    "referenceCode"=>"",//alpha-numeric
+    "amount"=> ""//integer include two decimal w/o '.' ; Ex. 1.00 = 100
+}];
+$response = $paymate->payment_cashier($jsonInput);
+
+```Send card payment```
+$jsonInput =[{  
+    "buyerName"=>"", //text 
+    "email"=> "",
+    "expirationMonth"=>"",// mm 
+    "expirationYear"=>"",// yyyy
+    "securityCode"=>"",// interger/CVV
+    "pan"=>"",//card number
+    "referenceCode"=>"",//alpha-numeric
+    "amount"=>""//integer include two decimal w/o '.' ; Ex. 1.00 = 100
+}];
+$response = $paymate->payment_online($jsonInput);
+```Generate link for qrph```
+$jsonInput = [{
+    "referenceCode" => "", //alpha-numberic
+    "amount" => ""//interger include two decimal w/o '.' ; Ex. 1.00 = 100
+}]
+$response = $paymate->payment_qrph($jsonInput);
+```Generate link for e-wallet payment```
+$jsonInput =[{  
+    "wallet":"",//gcash or grabpay 
+    "referenceCode"=>"",//alpha-numeric
+    "amount"=> ""//integer include two decimal w/o '.' ; Ex.  1.00 = 100
+}];
+$response = $paymate->payment_wallet($jsonInput);
+
 ```
 
 ## Testing
