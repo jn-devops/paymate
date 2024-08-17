@@ -17,8 +17,8 @@ class Paymate
         $reqURL = 'body=RaemulanLandsInc&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service=pay.instapay.native.v2&sign_type=SHA256&total_fee='.$amount.'&key=a0b1b6529b9a90efb5a80eba6ba0a7c6';
         $sign = hash('sha256', $reqURL);
         // Load XML template
-        // $xmlContent = simplexml_load_file(__DIR__.'\..\resources\xml\qrph_xml_template.xml');
-        $xmlContent = simplexml_load_file(base_path('resources/xml/qrph_xml_template.xml'));
+        $xmlContent = simplexml_load_file(__DIR__.'/../resources/xml/qrph_xml_template.xml');
+        // $xmlContent = simplexml_load_file(base_path('resources/xml/qrph_xml_template.xml'));
         $xmlTemplate = $xmlContent->asXML();
 
         // dd( $xmlString);
@@ -56,8 +56,8 @@ class Paymate
         $sign = hash('sha256', $reqURL);
 
         // Load XML template
-        // $xmlContent = simplexml_load_file(__DIR__.'\..\resources\xml\ewallet_xml_template.xml');
-        $xmlContent = simplexml_load_file(base_path('resources/xml/ewallet_xml_template.xml'));
+        $xmlContent = simplexml_load_file(__DIR__.'/../resources/xml/ewallet_xml_template.xml');
+        // $xmlContent = simplexml_load_file(base_path('resources/xml/ewallet_xml_template.xml'));
         $xmlTemplate = $xmlContent->asXML();
 
         // $xmlTemplate = Storage::get('/ewallet_xml_template.xml');
@@ -180,7 +180,7 @@ class Paymate
             ]);
             $response_message = json_decode($response->getBody()); //json_encode(json_decode($response->getBody()),JSON_UNESCAPED_SLASHES);
             if ($response_message->code != '00' && $response_message->code != '98') {    //send email if not success
-                $response = $this->email_qrph($request);
+                // $response = $this->email_qrph($request);
 
                 return [$response, $response_message];
             }
@@ -193,13 +193,13 @@ class Paymate
 
     public function email_qrph($request)
     {
-        // $config = config('paymate');
+        $config = config('paymate');
         $client = new Client;
         $generate_QR = $this->payment_qrph($request); //generate QRPH URL
 
         $json_input = ['qrdetails' => $generate_QR, 'email' => $request->email, 'buyerName' => $request->buyerName];
         try {
-            $response = $client->request('POST', 'https://eoktie2n2pdyofg.m.pipedream.net', [
+            $response = $client->request('POST', $config['notifyurl'], [
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ],
@@ -231,8 +231,8 @@ class Paymate
 
     public function jweEncryptionShell($publicKey, $payload)
     {
-        $encrypt = base_path('/resources/js/jweEncryption.cjs');
-        // $encrypt = __DIR__.'\..\resources\js\jweEncryption.cjs';
+        // $encrypt = base_path('/resources/js/jweEncryption.cjs');
+        $encrypt = __DIR__.'/../resources/js/jweEncryption.cjs';
         // dd($encrypt);
         if (! file_exists($encrypt)) {
             return 'Encryption script not found';
