@@ -18,7 +18,8 @@ class PaymateServiceProvider extends PackageServiceProvider
         $package
             ->name('paymate')
             ->hasConfigFile(['paymate'])
-            ->hasViews()
+            // ->hasViews()
+            ->hasAssets()
             ->hasMigration('create_paymate_table')
             ->hasCommand(PaymateCommand::class);
     }

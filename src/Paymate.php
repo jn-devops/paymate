@@ -17,7 +17,8 @@ class Paymate
         $reqURL = 'body=RaemulanLandsInc&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service=pay.instapay.native.v2&sign_type=SHA256&total_fee='.$amount.'&key=a0b1b6529b9a90efb5a80eba6ba0a7c6';
         $sign = hash('sha256', $reqURL);
         // Load XML template
-        $xmlContent = simplexml_load_file(__DIR__.'\..\resources\xml\qrph_xml_template.xml');
+        // $xmlContent = simplexml_load_file(__DIR__.'\..\resources\xml\qrph_xml_template.xml');
+        $xmlContent = simplexml_load_file(base_path('resources/xml/qrph_xml_template.xml'));
         $xmlTemplate = $xmlContent->asXML();
 
         // dd( $xmlString);
@@ -55,7 +56,8 @@ class Paymate
         $sign = hash('sha256', $reqURL);
 
         // Load XML template
-        $xmlContent = simplexml_load_file(__DIR__.'\..\resources\xml\ewallet_xml_template.xml');
+        // $xmlContent = simplexml_load_file(__DIR__.'\..\resources\xml\ewallet_xml_template.xml');
+        $xmlContent = simplexml_load_file(base_path('resources/xml/ewallet_xml_template.xml'));
         $xmlTemplate = $xmlContent->asXML();
 
         // $xmlTemplate = Storage::get('/ewallet_xml_template.xml');
@@ -129,6 +131,7 @@ class Paymate
 
     public function payment_online(Request $request)
     {
+
         $config = config('paymate');
         $transactionID = $request->input('referenceCode').time();
         $ccNo = utf8_encode($request->input('pan'));
@@ -228,8 +231,8 @@ class Paymate
 
     public function jweEncryptionShell($publicKey, $payload)
     {
-        // $encrypt = base_path('/resources/js/jweEncryption.cjs');
-        $encrypt = __DIR__.'\..\resources\js\jweEncryption.cjs';
+        $encrypt = base_path('/resources/js/jweEncryption.cjs');
+        // $encrypt = __DIR__.'\..\resources\js\jweEncryption.cjs';
         // dd($encrypt);
         if (! file_exists($encrypt)) {
             return 'Encryption script not found';
