@@ -5,6 +5,7 @@ namespace Homeful\Paymate;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
 
 class Paymate
 {
@@ -30,6 +31,7 @@ class Paymate
             [$config['merchant_id'], $nonce_str, $transactionID, $config['notifyurl'], $amount, $sign], $xmlTemplate);
         $client = new Client;
         try {
+            
             $response = $client->post('https://gateway.wepayez.com/pay/gateway', ['headers' => ['Content-Type' => 'application/xml'], 'body' => $xml_body]);
             $xml_response = $this->parseXMLtoJSON($response->getBody()->getContents());
 
@@ -168,21 +170,38 @@ class Paymate
         }
         $client = new Client;
         try {
-            $response = $client->post($config['base_url'].'/online/v1/payment', [
+            $client = new Client();
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Merchant-Id' => $config['merchant_id'],
+                'Customer-Request-Id' => $request->input('referenceCode'), //$transactionID,
+                'Accept-Language' => 'en-US',
+                'Authorization' => $signStr,
+            ];
+            $options = [
                 'json' => $reqBody,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Merchant-Id' => $config['merchant_id'],
-                    'Customer-Request-Id' => $request->input('referenceCode'), //$transactionID,
-                    'Accept-Language' => 'en-US',
-                    'Authorization' => $signStr,
-                ],
-            ]);
-            $response_message = json_decode($response->getBody()); //json_encode(json_decode($response->getBody()),JSON_UNESCAPED_SLASHES);
+            ];
+            $request = new GuzzleRequest('POST', $config['base_url'].'/online/v1/payment', $headers);
+            $res = $client->sendAsync($request, $options)->wait();//for large file/long processing callbacks
+
+
+            // $response = $client->post($config['base_url'].'/online/v1/payment', [
+           
+            //     'json' => $reqBody,
+            //     'headers' => [
+            //         'Content-Type' => 'application/json',
+            //         'Merchant-Id' => $config['merchant_id'],
+            //         'Customer-Request-Id' => $request->input('referenceCode'), //$transactionID,
+            //         'Accept-Language' => 'en-US',
+            //         'Authorization' => $signStr,
+            //     ],
+            // ]);
+            
+            // $response_message = json_decode($response->getBody()); //json_encode(json_decode($response->getBody()),JSON_UNESCAPED_SLASHES);
+            $response_message = json_decode($res->getBody()); //json_encode(json_decode($response->getBody()),JSON_UNESCAPED_SLASHES);
             if ($response_message->code != '00' && $response_message->code != '98') {    //send email if not success
                 // $response = $this->email_qrph($request);
-
-                return [$response, $response_message];
+                return [$res, $response_message];
             }
 
             return $response_message;
