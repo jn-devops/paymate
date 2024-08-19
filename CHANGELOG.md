@@ -2,6 +2,10 @@
 
 All notable changes to `paymate` will be documented in this file.
 
+## #v1.1.3 - 2024-08-19
+
+Debug Online payment
+
 ## v1.1.2 - 2024-08-19
 
 Change post request to async
