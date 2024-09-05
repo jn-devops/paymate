@@ -153,7 +153,7 @@ class Paymate
                 'orderId' => $transactionID,
                 'attach' => 'attach',
                 'goodsDetail' => 'Processing Fee',
-                'callbackUrl' => $config['callback']."/".$request->input('referenceCode'),
+                'callbackUrl' => $config['callback'].'/'.$request->input('referenceCode'),
                 'notifyUrl' => $config['notifyurl'],
             ],
             'card' => [
