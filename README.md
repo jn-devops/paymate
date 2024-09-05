@@ -34,6 +34,7 @@ php artisan vendor:publish --tag="paymate-views"
 ```php
 ```ENV Setup```
     'PAYMATE_MERCHANT_ID'   = ""
+    'PAYMATE_SIGN_KEY'      = ""
     'PAYMATE_BASE_URL'      = ""
     'PAYMATE_MERPUBKEY'     = ""
     'PAYMATE_JWSKEY'        = ""

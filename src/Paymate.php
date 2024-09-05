@@ -15,7 +15,8 @@ class Paymate
         $transactionID = $request->input('referenceCode').time();
         $amount = $request->input('amount');
         $nonce_str = $request->input('referenceCode');
-        $reqURL = 'body=RaemulanLandsInc&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service=pay.instapay.native.v2&sign_type=SHA256&total_fee='.$amount.'&key=a0b1b6529b9a90efb5a80eba6ba0a7c6';
+        // $reqURL = 'body=RaemulanLandsInc&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service=pay.instapay.native.v2&sign_type=SHA256&total_fee='.$amount.'&key=a0b1b6529b9a90efb5a80eba6ba0a7c6';
+        $reqURL = 'body=RaemulanLandsInc&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service=pay.instapay.native.v2&sign_type=SHA256&total_fee='.$amount.'&key='.$config['sign_key'];
         $sign = hash('sha256', $reqURL);
         // Load XML template
         $xmlContent = simplexml_load_file(__DIR__.'/../resources/xml/qrph_xml_template.xml');
@@ -54,9 +55,9 @@ class Paymate
         $transactionID = $request->input('referenceCode').time(); //referenceCode
         $amount = $request->input('amount');
         $nonce_str = $request->input('referenceCode');
-        $reqURL = 'body=RaemulanLandsInc&callback_url='.$config['callback'].'&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service='.$service.'&sign_type=SHA256&total_fee='.$amount.'&key=a0b1b6529b9a90efb5a80eba6ba0a7c6';
+        // $reqURL = 'body=RaemulanLandsInc&callback_url='.$config['callback'].'/'.$refencrypt.'&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service='.$service.'&sign_type=SHA256&total_fee='.$amount.'&key=a0b1b6529b9a90efb5a80eba6ba0a7c6';
+        $reqURL = 'body=RaemulanLandsInc&callback_url='.$config['callback'].'/'.$nonce_str.'&device_info=100&mch_create_ip=127.0.0.1&mch_id='.$config['merchant_id'].'&nonce_str='.$nonce_str.'&notify_url='.$config['notifyurl'].'&out_trade_no='.$transactionID.'&service='.$service.'&sign_type=SHA256&total_fee='.$amount.'&key='.$config['sign_key'];
         $sign = hash('sha256', $reqURL);
-
         // Load XML template
         $xmlContent = simplexml_load_file(__DIR__.'/../resources/xml/ewallet_xml_template.xml');
         // $xmlContent = simplexml_load_file(base_path('resources/xml/ewallet_xml_template.xml'));
@@ -68,7 +69,7 @@ class Paymate
         }
         $xml_body = str_replace(
             ['{{merchantID}}', '{{callback_url}}', '{{nonce_str}}', '{{transactionID}}', '{{service}}', '{{notify_url}}', '{{amount}}', '{{sign}}'],
-            [$config['merchant_id'], $config['callback'], $nonce_str, $transactionID, $service, $config['notifyurl'], $amount, $sign], $xmlTemplate);
+            [$config['merchant_id'], $config['callback'].'/'.$nonce_str, $nonce_str, $transactionID, $service, $config['notifyurl'], $amount, $sign], $xmlTemplate);
 
         $client = new Client;
         try {
@@ -92,18 +93,17 @@ class Paymate
     {
 
         $config = config('paymate');
-        $transactionID = time().$request->input('referenceCode');
+        $transactionID = $request->input('referenceCode').time();
         $reqBody = [
             'orderInformation' => [
                 'amount' => $request->input('amount'),
                 'orderId' => $request->input('referenceCode'),
                 'attach' => 'attach',
                 'goodsDetail' => 'Processing Fee',
-                'callbackUrl' => $config['callback'],
+                'callbackUrl' => $config['callback'].'/'.$request->input('referenceCode'),
                 'notifyUrl' => $config['notifyurl'],
             ],
         ];
-
         try {
             $signStr = $this->createJwsSign($reqBody, $config['merpubkey']);
         } catch (\Exception $e) {
@@ -153,7 +153,7 @@ class Paymate
                 'orderId' => $transactionID,
                 'attach' => 'attach',
                 'goodsDetail' => 'Processing Fee',
-                'callbackUrl' => $config['callback'],
+                'callbackUrl' => $config['callback']."/".$request->input('referenceCode'),
                 'notifyUrl' => $config['notifyurl'],
             ],
             'card' => [
@@ -163,6 +163,7 @@ class Paymate
                 'pan' => $cardNo,
             ],
         ];
+        // dd($reqBody);
         try {
             $signStr = $this->createJwsSign($reqBody, $config['merpubkey']);
         } catch (\Exception $e) {
