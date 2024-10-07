@@ -5,6 +5,7 @@ namespace Homeful\Paymate;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
 class Paymate
@@ -263,7 +264,6 @@ class Paymate
 
         if ($resultCode === 0) {
             $jwe = json_decode(implode("\n", $output), true);
-
             return $jwe;
         } else {
             return response()->json(['error' => 'Encryption failed', 'output' => $output, 'resultCode' => $resultCode], 500);
@@ -310,4 +310,77 @@ class Paymate
 
         return $jwsHeaderBase64.'..'.$signBySHA256;
     }
+
+    public function generateKey()
+    {
+        try {
+            $keyPair = $this->getKeyPair();
+            $publicKey = str_replace(["-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----", "\n", "\r"], '', $keyPair['publicKey']);
+            $privateKey = str_replace(["-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----", "\n", "\r"], '', $keyPair['privateKey']);
+            echo 'Private Key: ' . $privateKey . '<br>';
+            echo 'Public Key: ' . $publicKey . '<br>';
+            $resJSON =  [
+                "publicKey" => $publicKey,
+                "privateKey" => $privateKey
+            ];
+            return json_encode($resJSON, JSON_UNESCAPED_SLASHES);
+            
+        } catch (\Exception $e) {
+            echo 'Encryption Error: ' . $e->getMessage();
+        }
+    }
+
+    public function getKeyPair()
+    {   $config = [
+        'private_key_bits' => 2048,
+        'private_key_type' => OPENSSL_KEYTYPE_RSA,
+        // 'default_md' => "sha256",
+        "config" => __DIR__."/../resources/etc/openssl.cnf",
+    ];
+        $res = openssl_pkey_new($config);
+        openssl_pkey_export($res, $privateKey, null, $config);
+        $publicKey = openssl_pkey_get_details($res)['key'];
+        return [
+            'privateKey' => $privateKey,
+            'publicKey' => $publicKey
+        ];
+    }
+
+    public function payment_inquiry(Request $request)
+    {
+
+        $config = config('paymate');
+        $transactionID = $request->input('orderID').time();
+        $reqBody = [
+            'orderInformation' => [
+                'orderId' => $request->input('orderID'),
+            ],
+        ];
+        try {
+            $signStr = $this->createJwsSign($reqBody, $config['merpubkey']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error creating JWT signature: '.$e->getMessage()], 500);
+        }
+
+        $client = new Client;
+        try {
+            $response = $client->post($config['base_url'].'/online/v1/inquiry', [
+                'json' => $reqBody,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Merchant-Id' => $config['merchant_id'],
+                    'Customer-Request-Id' => $transactionID,
+                    'Accept-Language' => 'en-US',
+                    'Authorization' => $signStr,
+                ],
+            ]);
+            $response_message = json_encode(json_decode($response->getBody()), JSON_UNESCAPED_SLASHES);
+
+            // dd($response_message);
+            return $response_message;
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error making query: '.$e->getMessage()], 500);
+        }
+    }
+
 }
