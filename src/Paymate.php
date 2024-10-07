@@ -5,7 +5,6 @@ namespace Homeful\Paymate;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
 class Paymate
@@ -264,6 +263,7 @@ class Paymate
 
         if ($resultCode === 0) {
             $jwe = json_decode(implode("\n", $output), true);
+
             return $jwe;
         } else {
             return response()->json(['error' => 'Encryption failed', 'output' => $output, 'resultCode' => $resultCode], 500);
@@ -315,34 +315,37 @@ class Paymate
     {
         try {
             $keyPair = $this->getKeyPair();
-            $publicKey = str_replace(["-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----", "\n", "\r"], '', $keyPair['publicKey']);
-            $privateKey = str_replace(["-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----", "\n", "\r"], '', $keyPair['privateKey']);
-            echo 'Private Key: ' . $privateKey . '<br>';
-            echo 'Public Key: ' . $publicKey . '<br>';
-            $resJSON =  [
-                "publicKey" => $publicKey,
-                "privateKey" => $privateKey
+            $publicKey = str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $keyPair['publicKey']);
+            $privateKey = str_replace(['-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----', "\n", "\r"], '', $keyPair['privateKey']);
+            echo 'Private Key: '.$privateKey.'<br>';
+            echo 'Public Key: '.$publicKey.'<br>';
+            $resJSON = [
+                'publicKey' => $publicKey,
+                'privateKey' => $privateKey,
             ];
+
             return json_encode($resJSON, JSON_UNESCAPED_SLASHES);
-            
+
         } catch (\Exception $e) {
-            echo 'Encryption Error: ' . $e->getMessage();
+            echo 'Encryption Error: '.$e->getMessage();
         }
     }
 
     public function getKeyPair()
-    {   $config = [
-        'private_key_bits' => 2048,
-        'private_key_type' => OPENSSL_KEYTYPE_RSA,
-        // 'default_md' => "sha256",
-        "config" => __DIR__."/../resources/etc/openssl.cnf",
-    ];
+    {
+        $config = [
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA,
+            // 'default_md' => "sha256",
+            'config' => __DIR__.'/../resources/etc/openssl.cnf',
+        ];
         $res = openssl_pkey_new($config);
         openssl_pkey_export($res, $privateKey, null, $config);
         $publicKey = openssl_pkey_get_details($res)['key'];
+
         return [
             'privateKey' => $privateKey,
-            'publicKey' => $publicKey
+            'publicKey' => $publicKey,
         ];
     }
 
@@ -382,5 +385,4 @@ class Paymate
             return response()->json(['error' => 'Error making query: '.$e->getMessage()], 500);
         }
     }
-
 }
