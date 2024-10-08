@@ -2,6 +2,10 @@
 
 All notable changes to `paymate` will be documented in this file.
 
+## #v1.1.5 - 2024-10-08
+
+added generate public/private key, transaction inquiry
+
 ## #v1.1.4 - 2024-09-05
 
 added reference code in callbackurl, added sign_key env/config
