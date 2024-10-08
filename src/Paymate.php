@@ -317,8 +317,6 @@ class Paymate
             $keyPair = $this->getKeyPair();
             $publicKey = str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $keyPair['publicKey']);
             $privateKey = str_replace(['-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----', "\n", "\r"], '', $keyPair['privateKey']);
-            echo 'Private Key: '.$privateKey.'<br>';
-            echo 'Public Key: '.$publicKey.'<br>';
             $resJSON = [
                 'publicKey' => $publicKey,
                 'privateKey' => $privateKey,

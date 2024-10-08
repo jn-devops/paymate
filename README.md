@@ -44,6 +44,9 @@ php artisan vendor:publish --tag="paymate-views"
 ```ENV Setup```
 
 $paymate = new Homeful\Paymate();
+```Generate public and private key```
+$response = $paymate->generateKey();
+
 ```Generate link for AUbpaymate```
 $jsonInput =[{   
     "referenceCode"=>"",//alpha-numeric
@@ -52,6 +55,7 @@ $jsonInput =[{
 $response = $paymate->payment_cashier($jsonInput);
 
 ```Send card payment```
+
 $jsonInput =[{  
     "buyerName"=>"", //text 
     "email"=> "",
@@ -69,13 +73,12 @@ $jsonInput = [{
     "amount" => ""//interger include two decimal w/o '.' ; Ex. 1.00 = 100
 }]
 $response = $paymate->payment_qrph($jsonInput);
-```Generate link for e-wallet payment```
+```Get transaction details```
 $jsonInput =[{  
-    "wallet":"",//gcash or grabpay 
-    "referenceCode"=>"",//alpha-numeric
-    "amount"=> ""//integer include two decimal w/o '.' ; Ex.  1.00 = 100
+    "orderID"=>"",//alpha-numeric
 }];
-$response = $paymate->payment_wallet($jsonInput);
+$response = $paymate->payment_inquiry($jsonInput);
+
 
 ```
 
